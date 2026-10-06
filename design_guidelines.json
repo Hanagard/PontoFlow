@@ -1,0 +1,272 @@
+{
+  "project_name": "PontoFlow - Sistema de Controle de Ponto Eletrônico e Jornada",
+  "theme_strategy": {
+    "default_mode": "light",
+    "mode_toggle_supported": true,
+    "design_archetype": "Swiss Precision & Modern Operational Clarity (Authority, Clean Utility, Human Warmth)",
+    "aesthetic_principles": [
+      "Ultra-clean typographic hierarchy with tactile micro-interactions",
+      "Mobile-first prominent punch clock interface for employees (massive touch-friendly tap target, clear live status)",
+      "High-density operational clarity for managers and admins (organized Bento grid, clear tables, status pills, minimal visual noise)",
+      "Accessible high-contrast palette with deep indigo-slate anchors, crisp neutral stone surfaces, and vibrant emerald active/punch kinetic triggers"
+    ]
+  },
+  "typography": {
+    "primary_font": "Plus Jakarta Sans Variable",
+    "heading_font": "Plus Jakarta Sans Variable",
+    "mono_font": "JetBrains Mono Variable",
+    "font_import_css": "@import \"@fontsource-variable/plus-jakarta-sans\";\n@import \"@fontsource-variable/jetbrains-mono\";",
+    "font_family_variables": {
+      "--font-sans": "'Plus Jakarta Sans Variable', system-ui, sans-serif",
+      "--font-heading": "'Plus Jakarta Sans Variable', system-ui, sans-serif",
+      "--font-mono": "'JetBrains Mono Variable', monospace"
+    },
+    "scale_px": {
+      "display": 56,
+      "h1": 40,
+      "h2": 30,
+      "h3": 22,
+      "body": 16,
+      "caption": 14
+    },
+    "typesetting_rules": {
+      "display": "text-4xl sm:text-5xl font-extrabold tracking-tight leading-none",
+      "h1": "text-3xl sm:text-4xl font-bold tracking-tight leading-tight",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-semibold tracking-normal",
+      "body": "text-base font-normal leading-relaxed text-slate-700 dark:text-slate-200",
+      "caption": "text-sm font-medium tracking-normal text-slate-500 dark:text-slate-400",
+      "mono_digits": "font-mono font-semibold tracking-tight",
+      "labels": "text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"
+    }
+  },
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#F8FAFC",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#475569",
+        "roles": {
+          "link": "#2563EB",
+          "error": "#DC2626",
+          "success": "#059669",
+          "warning": "#D97706"
+        }
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#FFFFFF",
+        "on_bg": "#0F172A",
+        "on_bg_muted": "#64748B",
+        "roles": {
+          "link": "#2563EB",
+          "border": "#E2E8F0",
+          "hover": "#F1F5F9"
+        }
+      },
+      {
+        "name": "punch_hero_card",
+        "kind": "solid",
+        "bg": "#0F172A",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "accent_punch": "#10B981",
+          "accent_punch_hover": "#059669",
+          "time_glow": "#38BDF8",
+          "border": "#334155"
+        }
+      },
+      {
+        "name": "status_badge_success",
+        "kind": "solid",
+        "bg": "#DCFCE7",
+        "on_bg": "#14532D",
+        "on_bg_muted": "#166534"
+      },
+      {
+        "name": "status_badge_warning",
+        "kind": "solid",
+        "bg": "#FEF3C7",
+        "on_bg": "#78350F",
+        "on_bg_muted": "#92400E"
+      },
+      {
+        "name": "status_badge_error",
+        "kind": "solid",
+        "bg": "#FEE2E2",
+        "on_bg": "#7F1D1D",
+        "on_bg_muted": "#991B1B"
+      },
+      {
+        "name": "status_badge_info",
+        "kind": "solid",
+        "bg": "#E0F2FE",
+        "on_bg": "#0369A1",
+        "on_bg_muted": "#0284C7"
+      },
+      {
+        "name": "dark_page",
+        "kind": "solid",
+        "bg": "#090D16",
+        "on_bg": "#F8FAFC",
+        "on_bg_muted": "#94A3B8",
+        "roles": {
+          "link": "#60A5FA",
+          "error": "#F87171",
+          "success": "#34D399",
+          "warning": "#FBBF24"
+        }
+      },
+      {
+        "name": "dark_panel",
+        "kind": "solid",
+        "bg": "#111827",
+        "on_bg": "#F9FAFB",
+        "on_bg_muted": "#9CA3AF",
+        "roles": {
+          "border": "#1F2937",
+          "hover": "#1E293B"
+        }
+      }
+    ],
+    "accent": "#0D9488",
+    "on_accent": "#FFFFFF",
+    "brand_primary": "#0F172A",
+    "punch_action_emerald": "#059669"
+  },
+  "entry_surfaces": {
+    "/login": "split branded auth screen — dark atmospheric company positioning & live clock left panel, white clean structured role-switching login form right",
+    "/": "redirects authenticated session based on user role (employee punch clock OR admin dashboard)",
+    "/funcionario": "mobile-first punch clock console — dominant real-time punch card top with pulse state, timeline summary mid, quick mirror & request triggers bottom",
+    "/gestor": "high-density management command center — squad presence KPI strip top, pending approval queue center, team punch ledger right",
+    "/admin": "executive dashboard — key operational indicators top bento grid, mirror filters & reports table center, company audit & employee manager drawer right"
+  },
+  "layouts_and_grids": {
+    "mobile_employee_view": {
+      "container": "max-w-xl mx-auto px-4 py-6 space-y-6",
+      "punch_hero_button": "w-full min-h-[160px] sm:min-h-[180px] rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-xl transition-all duration-200 active:scale-[0.98]",
+      "daily_timeline_grid": "grid grid-cols-2 sm:grid-cols-4 gap-3"
+    },
+    "admin_dashboard_bento": {
+      "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8",
+      "kpi_strip": "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4",
+      "main_split": "grid grid-cols-1 lg:grid-cols-12 gap-8 items-start",
+      "mirror_table_col": "lg:col-span-8",
+      "sidebar_actions_col": "lg:col-span-4 space-y-6"
+    }
+  },
+  "motion_and_interactions": {
+    "guidelines": "No superfluous or dizzying animations. Use purposeful micro-interactions with spring physics for punch action and tab transitions.",
+    "punch_pulse": "Subtle radar-pulse ring animation around the active punch button indicating ready state",
+    "toast_feedback": "Immediate sonner feedback with audit receipt confirmation ID upon registering punch",
+    "modals_and_drawers": "Smooth slide-in sheet for adjustment requests and justification uploads with focus trap and escape key handler"
+  },
+  "accessibility": {
+    "wcag_level": "WCAG AA compliant (minimum 4.5:1 text contrast on all surfaces)",
+    "keyboard_navigation": "Full keyboard tab ordering across punch clock, filters, date pickers, and tables",
+    "screen_readers": "Aria live regions for live digital clock updates and punch confirmation alerts",
+    "touch_targets": "Minimum 48px touch targets for all mobile actions (punch button exceeds 120px height for ultimate thumb ergonomics)"
+  },
+  "component_structure": {
+    "app_shell": "frontend/src/App.tsx (role-based protected routing: Employee, Manager, Admin, Super Admin, Login)",
+    "css_theme_entry": "frontend/src/index.css",
+    "custom_components": [
+      {
+        "name": "PunchClockHero",
+        "path": "frontend/src/components/ponto/PunchClockHero.tsx",
+        "purpose": "Prominent real-time employee punch card with live UTC-3 digital clock, dynamic current step label (Entrada -> Intervalo -> Retorno -> Saída), GPS/IP detection simulator indicator, and large one-tap button."
+      },
+      {
+        "name": "DailyPunchTimeline",
+        "path": "frontend/src/components/ponto/DailyPunchTimeline.tsx",
+        "purpose": "4-slot status visualizer for the day (Entrada, Saída Int., Retorno Int., Saída) with timestamps and status badges."
+      },
+      {
+        "name": "EspelhoPontoTable",
+        "path": "frontend/src/components/ponto/EspelhoPontoTable.tsx",
+        "purpose": "Comprehensive timesheet table conforming to Brazilian labor standards: Data | Entrada | Saída Int | Retorno Int | Saída | Total Trabalhado | Saldo/Horas Extras/Atraso | Status | Ações (Solicitar Ajuste)."
+      },
+      {
+        "name": "AdjustmentRequestModal",
+        "path": "frontend/src/components/ponto/AdjustmentRequestModal.tsx",
+        "purpose": "Modal to request missing punch record adjustments or justify absences with document/medical certificate upload."
+      },
+      {
+        "name": "ApprovalQueueCard",
+        "path": "frontend/src/components/admin/ApprovalQueueCard.tsx",
+        "purpose": "Manager & Admin card for 1-click Approve / Reject with justification notes on employee punch adjustments."
+      },
+      {
+        "name": "AdminIndicatorsBento",
+        "path": "frontend/src/components/admin/AdminIndicatorsBento.tsx",
+        "purpose": "High-density KPI strip showing Active Employees, Present Now, On Lunch, Absent, Delayed, Pending Requests, Overtime Balance."
+      },
+      {
+        "name": "EmployeeManagementModal",
+        "path": "frontend/src/components/admin/EmployeeManagementModal.tsx",
+        "purpose": "CRUD dialog for employee profiles, department assignment, journey/work schedule configuration (e.g. 08:00-18:00 com 1h intervalo, 12x36, etc.)."
+      },
+      {
+        "name": "ExportReportDialog",
+        "path": "frontend/src/components/admin/ExportReportDialog.tsx",
+        "purpose": "Export dialog for timesheets and audit logs in CSV / Excel (XLSX) and printable PDF/Espelho format."
+      },
+      {
+        "name": "AuditTrailDrawer",
+        "path": "frontend/src/components/admin/AuditTrailDrawer.tsx",
+        "purpose": "Immutable chronological audit log viewer displaying timestamps, IP address, user agent, actor, and change history."
+      }
+    ]
+  },
+  "testing_attributes": {
+    "convention": "kebab-case data-testid on every interactive trigger, form input, table row, and balance indicator",
+    "key_testids": [
+      "login-email-input",
+      "login-password-input",
+      "login-role-select",
+      "login-submit-button",
+      "quick-login-admin-btn",
+      "quick-login-gestor-btn",
+      "quick-login-funcionario-btn",
+      "punch-clock-action-button",
+      "punch-clock-live-time",
+      "punch-status-badge",
+      "timeline-entrada-time",
+      "timeline-intervalo-time",
+      "timeline-retorno-time",
+      "timeline-saida-time",
+      "espelho-filter-periodo",
+      "espelho-filter-status",
+      "espelho-table",
+      "espelho-row",
+      "espelho-request-adjustment-btn",
+      "adjustment-modal-type-select",
+      "adjustment-modal-date-input",
+      "adjustment-modal-time-input",
+      "adjustment-modal-reason-textarea",
+      "adjustment-modal-submit-btn",
+      "admin-kpi-presentes",
+      "admin-kpi-ausentes",
+      "admin-kpi-atrasados",
+      "admin-kpi-pendentes",
+      "approval-item-approve-btn",
+      "approval-item-reject-btn",
+      "export-report-btn",
+      "add-employee-btn",
+      "employee-form-submit-btn",
+      "logout-btn"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Implement seed data with 3 distinct accounts: Super Admin / Empresa Admin (admin@pontoflow.com.br), Gestor de Equipe (gestor@pontoflow.com.br), and Funcionário (maria.silva@pontoflow.com.br) with one-click quick demo login buttons for seamless evaluation.",
+    "Implement robust Brazilian labor rule calculation logic: standard 8h/day (44h/week), automatic calculation of worked hours, meal break intervals, positive overtime balance (banco de horas / HE 50%), and delay/deficit calculations.",
+    "Keep employee interface (§17) ultra simple: greeting, current journey schedule (ex: 08:00 - 18:00), dynamic live status, huge tactile punch button with current required punch type, and list of today's records.",
+    "Strictly follow Portuguese (PT-BR) vocabulary: 'Registrar Ponto', 'Entrada', 'Saída para Intervalo', 'Retorno do Intervalo', 'Saída', 'Espelho de Ponto', 'Banco de Horas', 'Solicitações de Ajuste', 'Aprovado', 'Pendente', 'Rejeitado', 'Jornada de Trabalho'.",
+    "Support full timesheet export with CSV generation and formatted printable HTML/PDF mirror summary.",
+    "Ensure all interactive elements have data-testid attributes and adhere to WCAG AA contrast ratios."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "PontoFlow — Controle de Ponto",
+  "short_name": "PontoFlow",
+  "description": "Registro de ponto eletrônico, espelho de ponto e gestão de jornada.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
