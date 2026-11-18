@@ -49,6 +49,8 @@ Cria 1 empresa, 2 jornadas, 5 funcionários, ~3 semanas de registros (com uma fa
 
 ## Testes
 
+O GitHub Actions executa automaticamente os testes unitários de domínio e segurança em pull requests e pushes nas branches de auditoria. Para execução local completa:
+
 ```bash
 cd backend  && pytest            # domínio (cálculo/sequência/CPF) + integração (auth, RBAC, isolamento)
 cd frontend && yarn typecheck    # a única forma de typecheck do frontend
