@@ -30,6 +30,30 @@ MAX_ATTEMPTS = 8
 WINDOW_SECONDS = 300
 _attempts: dict[str, list[float]] = defaultdict(list)
 
+# In-process baseline; production multi-worker deployments must use Redis.
+SIGNUP_MAX_ATTEMPTS = 5
+SIGNUP_WINDOW_SECONDS = 3600
+SIGNUP_MAX_KEYS = 10000
+_signup_attempts: dict[str, list[float]] = {}
+
+
+def _consume_signup_attempt(ip: str) -> bool:
+    """Consume a signup attempt; return True when this source is throttled."""
+    now = now_utc().timestamp()
+    expired = [key for key, values in _signup_attempts.items()
+               if not values or now - values[-1] >= SIGNUP_WINDOW_SECONDS]
+    for key in expired:
+        _signup_attempts.pop(key, None)
+    if ip not in _signup_attempts and len(_signup_attempts) >= SIGNUP_MAX_KEYS:
+        return True
+    recent = [stamp for stamp in _signup_attempts.get(ip, []) if now - stamp < SIGNUP_WINDOW_SECONDS]
+    if len(recent) >= SIGNUP_MAX_ATTEMPTS:
+        _signup_attempts[ip] = recent
+        return True
+    recent.append(now)
+    _signup_attempts[ip] = recent
+    return False
+
 
 def _rate_limited(key: str) -> bool:
     now = now_utc().timestamp()
@@ -119,6 +143,9 @@ async def login(payload: LoginIn, request: Request, response: Response):
 
 @router.post("/signup", response_model=MeOut)
 async def signup(payload: SignupIn, request: Request, response: Response):
+    source_ip = client_ip(request)
+    if _consume_signup_attempt(source_ip):
+        raise HTTPException(status_code=429, detail="Limite de criação de empresas atingido. Tente novamente mais tarde.")
     email = payload.email.lower().strip()
     if await db.users.find_one({"email": email}):
         raise HTTPException(status_code=409, detail="Este e-mail já está cadastrado.")
@@ -148,8 +175,8 @@ async def signup(payload: SignupIn, request: Request, response: Response):
         }
     )
     actor = AuditActor(id=user_id, name=payload.name, role="admin")
-    await write_audit(company_id=company_id, actor=actor, action="EMPRESA_CRIADA", resource="company", resource_id=company_id, after={"name": payload.company_name}, ip=client_ip(request))
-    await write_audit(company_id=company_id, actor=actor, action="USUARIO_CRIADO", resource="user", resource_id=user_id, after={"email": email, "role": "admin"}, ip=client_ip(request))
+    await write_audit(company_id=company_id, actor=actor, action="EMPRESA_CRIADA", resource="company", resource_id=company_id, after={"name": payload.company_name}, ip=source_ip)
+    await write_audit(company_id=company_id, actor=actor, action="USUARIO_CRIADO", resource="user", resource_id=user_id, after={"email": email, "role": "admin"}, ip=source_ip)
     response.set_cookie(value=create_session_token(user_id), **session_cookie_kwargs())
     return MeOut(
         id=user_id,
