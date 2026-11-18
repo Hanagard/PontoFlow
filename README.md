@@ -65,7 +65,7 @@ cd frontend && yarn lint
 | [`docs/DATABASE.md`](docs/DATABASE.md) | coleções, campos, índices, migrations |
 | [`docs/API.md`](docs/API.md) | todos os endpoints, perfis e códigos de erro |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | autenticação, autorização, LGPD, pendências de produção |
-| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | ambientes, variáveis, build, backup |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | ambientes, variáveis, build, backup |\n| [`docs/DEMO-DEPLOY.md`](docs/DEMO-DEPLOY.md) | publicação de demonstração em Render + MongoDB Atlas |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | fases entregues e próximas (banco de horas, GPS, escalas, SaaS) |
 | [`memory/SPEC.md`](memory/SPEC.md) | especificação viva do app |
 
