@@ -39,6 +39,12 @@
 - Localização, selfie e biometria **não** estão implementadas. Os campos de GPS existem em `time_records` mas nenhum fluxo os exige; ativar depende de política de consentimento, retenção e controle de acesso ainda não construída.
 - Logs não registram senha, hash nem CPF completo.
 
+## Endereço IP e proxies confiáveis
+
+- client_ip() usa o IP da conexão TCP por padrão e não confia em X-Forwarded-For enviado diretamente pelo cliente.
+- Se houver proxy reverso, configure TRUSTED_PROXY_CIDRS com os CIDRs exatos dos proxies. A cadeia é percorrida da conexão mais próxima até o primeiro salto não confiável.
+- Não use 0.0.0.0/0 ou ::/0 nessa configuração: isso anula a proteção contra falsificação de IP.
+
 ## Headers e CORS
 
 - Middleware adiciona `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: geolocation=(self)`.
