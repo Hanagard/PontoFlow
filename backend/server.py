@@ -2,6 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -29,20 +30,16 @@ from routers.hoursbank import router as hoursbank_router
 from routers.alerts import router as alerts_router
 
 
-# Startup runs before the yield, shutdown after it. Add your own setup/teardown here.
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.index_task = asyncio.create_task(ensure_indexes())  # background: a big index build must not block boot
+    app.state.index_task = asyncio.create_task(ensure_indexes())
     yield
     if not app.state.index_task.done():
         app.state.index_task.cancel()
     client.close()
 
 
-# Create the main app without a prefix
 app = FastAPI(lifespan=lifespan)
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
 
@@ -51,7 +48,6 @@ async def root():
     return {"message": "PontoFlow API"}
 
 
-# Mount the feature routers onto the /api router (never onto `app` directly)
 api_router.include_router(auth_router)
 api_router.include_router(users_router)
 api_router.include_router(employees_router)
@@ -72,7 +68,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -80,14 +75,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Centralised error handling (§25): the user sees a clear message, the stack trace stays in the log.
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
     logger.exception("unhandled error on %s %s", request.method, request.url.path)
     return JSONResponse(status_code=500, content={"detail": "Erro interno. Tente novamente em instantes."})
 
 
-# Security headers (§19)
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
     response = await call_next(request)
@@ -98,5 +91,12 @@ async def security_headers(request: Request, call_next):
     return response
 
 
-# Include the router in the main app — must stay the last statement
 app.include_router(api_router)
+
+# Serve the built React SPA from the same origin so /api requests and httpOnly
+# session cookies remain same-site. API routes are registered before this catch-all.
+FRONTEND_DIST = ROOT_DIR.parent / "frontend" / "dist"
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
+else:
+    logger.warning("Frontend build not found at %s; serving API only", FRONTEND_DIST)
