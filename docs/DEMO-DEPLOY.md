@@ -9,8 +9,8 @@ Este repositório está preparado para uma implantação de demonstração em Re
 
 ## 1. Criar banco MongoDB Atlas
 1. Crie uma conta em https://www.mongodb.com/atlas/database.
-2. Crie um cluster Free (M0) e um usuário de banco com senha forte.
-3. Em Network Access, permita a conexão do Render. Para uma demonstração inicial, pode-se usar 0.0.0.0/0 somente com usuário/senha fortes e banco de demonstração; prefira restringir por IP quando possível.
+2. Crie um cluster Free e um usuário de banco com senha forte.
+3. Em Network Access, permita somente os endereços de saída (outbound IP ranges) informados nas configurações do serviço Render. Não use 0.0.0.0/0.
 4. Copie a connection string mongodb+srv://..., substituindo usuário, senha e nome do banco.
 5. Não coloque a URI em arquivos, commits ou mensagens públicas.
 
@@ -22,7 +22,7 @@ Este repositório está preparado para uma implantação de demonstração em Re
 5. Na configuração Environment do serviço, defina MONGO_URL com a URI privada do Atlas. SESSION_SECRET será gerado pelo Render.
 6. Faça o deploy manual após revisar as variáveis. O serviço usa APP_ENV=production, HTTPS e cookie Secure.
 
-O plano Free pode suspender o serviço após inatividade e a primeira abertura pode demorar. Não é adequado para produção comercial com SLA.
+O plano Free suspende o serviço após 15 minutos sem tráfego e a retomada pode levar cerca de um minuto. Também possui limites de recursos e não é adequado para produção comercial com SLA.
 
 ## 3. Popular dados de demonstração (opcional)
 O seed é destrutivo apenas para a empresa de demonstração e usa credenciais fixas de teste. Execute-o somente em um banco Atlas criado exclusivamente para a demonstração, nunca no banco de clientes.
