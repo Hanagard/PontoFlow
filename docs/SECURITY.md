@@ -23,6 +23,8 @@
 ## Proteção contra força bruta
 
 - `POST /auth/login`: 8 tentativas por e-mail+IP em janela de 5 minutos → `429`.
+- `POST /auth/signup`: 5 tentativas por IP em janela de 1 hora → `429`; mapa local limitado a 10 mil chaves.
+- Ambos os controles ainda são locais ao processo; Redis é necessário em produção com múltiplas instâncias.
 - Mensagem idêntica para e-mail inexistente e senha errada (sem enumeração de contas).
 - Tentativa falha em conta existente gera evento `LOGIN_FALHA` na auditoria.
 
@@ -39,6 +41,16 @@
 - Localização, selfie e biometria **não** estão implementadas. Os campos de GPS existem em `time_records` mas nenhum fluxo os exige; ativar depende de política de consentimento, retenção e controle de acesso ainda não construída.
 - Logs não registram senha, hash nem CPF completo.
 
+## Superfície pública
+
+- A rota de demonstração `/api/status`, que permitia gravar e listar dados sem autenticação, foi removida.
+
+## Endereço IP e proxies confiáveis
+
+- client_ip() usa o IP da conexão TCP por padrão e não confia em X-Forwarded-For enviado diretamente pelo cliente.
+- Se houver proxy reverso, configure TRUSTED_PROXY_CIDRS com os CIDRs exatos dos proxies. A cadeia é percorrida da conexão mais próxima até o primeiro salto não confiável.
+- Não use 0.0.0.0/0 ou ::/0 nessa configuração: isso anula a proteção contra falsificação de IP.
+
 ## Headers e CORS
 
 - Middleware adiciona `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: geolocation=(self)`.
@@ -47,6 +59,11 @@
 ## Tratamento de erros (§25)
 
 Handler global em `server.py` converte exceção não tratada em `500 {"detail": "Erro interno. Tente novamente em instantes."}`; o traceback fica só no log do servidor. No frontend, `errorMessage()` exibe o `detail` do backend — nunca um stack trace.
+
+## Integração contínua
+
+- O workflow `.github/workflows/quality.yml` executa testes de domínio e segurança em pull requests para `main` e pushes nas branches de auditoria.
+- A suíte de integração HTTP depende de servidor FastAPI e MongoDB com seed; ela ainda precisa de job próprio e ambiente descartável.
 
 ## Segredos
 

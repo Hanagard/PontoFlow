@@ -49,6 +49,8 @@ Cria 1 empresa, 2 jornadas, 5 funcionários, ~3 semanas de registros (com uma fa
 
 ## Testes
 
+O GitHub Actions executa automaticamente os testes unitários de domínio e segurança em pull requests e pushes nas branches de auditoria. Para execução local completa:
+
 ```bash
 cd backend  && pytest            # domínio (cálculo/sequência/CPF) + integração (auth, RBAC, isolamento)
 cd frontend && yarn typecheck    # a única forma de typecheck do frontend
@@ -63,7 +65,7 @@ cd frontend && yarn lint
 | [`docs/DATABASE.md`](docs/DATABASE.md) | coleções, campos, índices, migrations |
 | [`docs/API.md`](docs/API.md) | todos os endpoints, perfis e códigos de erro |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | autenticação, autorização, LGPD, pendências de produção |
-| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | ambientes, variáveis, build, backup |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | ambientes, variáveis, build, backup |\n| [`docs/DEMO-DEPLOY.md`](docs/DEMO-DEPLOY.md) | publicação de demonstração em Render + MongoDB Atlas |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | fases entregues e próximas (banco de horas, GPS, escalas, SaaS) |
 | [`memory/SPEC.md`](memory/SPEC.md) | especificação viva do app |
 

@@ -26,6 +26,14 @@ def session(creds: dict):
         yield c
 
 
+# --- superfície pública ---
+
+
+def test_legacy_status_endpoint_is_removed(client):
+    assert client.get("/status").status_code == 404
+    assert client.post("/status", json={"client_name": "probe"}).status_code == 404
+
+
 # --- autenticação (§19) ---
 
 def test_login_rejects_wrong_password_without_leaking_account_existence(client):

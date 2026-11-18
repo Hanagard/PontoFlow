@@ -6,6 +6,7 @@
 - Authorization is enforced server-side via get_current_user / require_roles dependencies.
 """
 
+import ipaddress
 import logging
 import os
 import secrets
@@ -107,8 +108,43 @@ def require_roles(*roles: str):
     return dependency
 
 
+def _trusted_proxy_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    """Networks allowed to assert X-Forwarded-For; empty means trust no proxy."""
+    configured = os.environ.get("TRUSTED_PROXY_CIDRS", "")
+    networks = []
+    for item in configured.split(","):
+        value = item.strip()
+        if not value:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(value, strict=False))
+        except ValueError:
+            logger.warning("Ignoring invalid TRUSTED_PROXY_CIDRS entry: %r", value)
+    return networks
+
+
 def client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else ""
+    """Use the peer IP unless a configured trusted proxy supplied a valid chain."""
+    peer = request.client.host if request.client else ""
+    try:
+        peer_ip = ipaddress.ip_address(peer)
+    except ValueError:
+        return peer
+
+    networks = _trusted_proxy_networks()
+    if not any(peer_ip in network for network in networks):
+        return peer
+
+    chain = [part.strip() for part in request.headers.get("x-forwarded-for", "").split(",") if part.strip()]
+    if not chain:
+        return str(peer_ip)
+
+    # Walk from the nearest proxy toward the client; stop at the first untrusted hop.
+    for candidate in reversed(chain):
+        try:
+            candidate_ip = ipaddress.ip_address(candidate)
+        except ValueError:
+            continue
+        if not any(candidate_ip in network for network in networks):
+            return str(candidate_ip)
+    return str(peer_ip)

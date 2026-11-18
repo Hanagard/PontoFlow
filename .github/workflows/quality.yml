@@ -1,0 +1,111 @@
+name: PontoFlow quality checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, "audit/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-unit:
+    name: Backend domain and security tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      MONGO_URL: mongodb://127.0.0.1:27017
+      DB_NAME: pontoflow_ci
+      APP_ENV: test
+      SESSION_SECRET: ci-only-secret-not-for-production-00000000000000000000000000000000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install fastapi pydantic pymongo motor pyjwt passlib bcrypt==4.0.1 pytest pytest-xdist pytest-asyncio httpx email-validator python-dotenv
+      - name: Run domain and security tests
+        run: pytest -q tests/test_calc.py tests/test_security.py
+
+  backend-integration:
+    name: API integration tests with disposable MongoDB
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      MONGO_URL: mongodb://127.0.0.1:27017
+      DB_NAME: pontoflow_homologation_ci
+      APP_ENV: test
+      SESSION_SECRET: ci-only-secret-not-for-production-00000000000000000000000000000000
+      BACKEND_URL: http://127.0.0.1:8001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Seed isolated demo data
+        run: python seed.py
+      - name: Start API and run integration tests
+        run: |
+          nohup uvicorn server:app --host 127.0.0.1 --port 8001 > /tmp/pontoflow-api.log 2>&1 &
+          for attempt in $(seq 1 40); do
+            if curl --fail http://127.0.0.1:8001/api/; then
+              pytest -q tests/test_api.py
+              exit $?
+            fi
+            sleep 2
+          done
+          cat /tmp/pontoflow-api.log
+          exit 1
+
+  frontend-build:
+    name: Frontend typecheck and production build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck and build
+        run: npm run build
+
+  docker-image:
+    name: Build production deployment image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: pontoflow:ci
