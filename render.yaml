@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: pontoflow-demo
+    runtime: docker
+    plan: free
+    branch: audit/hardening-2026-11
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/
+    autoDeploy: false
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_TZ
+        value: America/Belem
+      - key: DB_NAME
+        value: pontoflow_demo
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: MONGO_URL
+        sync: false
+      - key: TRUSTED_PROXY_CIDRS
+        value: ""
