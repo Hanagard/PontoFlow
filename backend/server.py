@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse
@@ -33,6 +34,8 @@ from routers.alerts import router as alerts_router
 async def lifespan(app: FastAPI):
     app.state.index_task = asyncio.create_task(ensure_indexes())  # background: a big index build must not block boot
     yield
+    if not app.state.index_task.done():
+        app.state.index_task.cancel()
     client.close()
 
 
