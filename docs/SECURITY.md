@@ -23,6 +23,8 @@
 ## Proteção contra força bruta
 
 - `POST /auth/login`: 8 tentativas por e-mail+IP em janela de 5 minutos → `429`.
+- `POST /auth/signup`: 5 tentativas por IP em janela de 1 hora → `429`; mapa local limitado a 10 mil chaves.
+- Ambos os controles ainda são locais ao processo; Redis é necessário em produção com múltiplas instâncias.
 - Mensagem idêntica para e-mail inexistente e senha errada (sem enumeração de contas).
 - Tentativa falha em conta existente gera evento `LOGIN_FALHA` na auditoria.
 
@@ -38,6 +40,10 @@
 - Auditoria registra o CPF já mascarado.
 - Localização, selfie e biometria **não** estão implementadas. Os campos de GPS existem em `time_records` mas nenhum fluxo os exige; ativar depende de política de consentimento, retenção e controle de acesso ainda não construída.
 - Logs não registram senha, hash nem CPF completo.
+
+## Superfície pública
+
+- A rota de demonstração `/api/status`, que permitia gravar e listar dados sem autenticação, foi removida.
 
 ## Endereço IP e proxies confiáveis
 
