@@ -60,6 +60,11 @@
 
 Handler global em `server.py` converte exceção não tratada em `500 {"detail": "Erro interno. Tente novamente em instantes."}`; o traceback fica só no log do servidor. No frontend, `errorMessage()` exibe o `detail` do backend — nunca um stack trace.
 
+## Integração contínua
+
+- O workflow `.github/workflows/quality.yml` executa testes de domínio e segurança em pull requests para `main` e pushes nas branches de auditoria.
+- A suíte de integração HTTP depende de servidor FastAPI e MongoDB com seed; ela ainda precisa de job próprio e ambiente descartável.
+
 ## Segredos
 
 - `SESSION_SECRET`, `MONGO_URL`, `DB_NAME`, `CORS_ORIGINS`, `APP_TZ` ficam em `backend/.env`, lidos via `os.environ`. Modelo em `.env.example`.
