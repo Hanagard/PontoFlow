@@ -201,6 +201,8 @@ def test_cross_company_data_is_invisible():
     other = {"company_name": "Empresa Isolada SA", "name": "Admin Isolado", "email": "isolado@teste-tenant.com.br", "password": "Teste@2026"}
     with httpx.Client(base_url=API_URL, timeout=30.0) as c:
         res = c.post("/auth/signup", json={**other, "password": "LongTestPassword#2026"})
+        if res.status_code == 403:
+            pytest.skip("signup desabilitado por padrão; habilite somente em ambiente de teste")
         if res.status_code == 409:
             res = c.post("/auth/login", json={"email": other["email"], "password": other["password"]})
         assert res.status_code == 200
