@@ -1,11 +1,6 @@
-"""Session auth primitives: bcrypt password hashing + signed httpOnly session cookie (JWT HS256).
+"""Session auth primitives: bcrypt password hashing + signed httpOnly session cookie."""
 
-- Passwords are stored ONLY as bcrypt hashes (never returned by any endpoint).
-- The session is an httpOnly cookie ("pf_session") set by POST /auth/login and cleared by
-  POST /auth/logout; nothing token-shaped ever reaches the frontend.
-- Authorization is enforced server-side via get_current_user / require_roles dependencies.
-"""
-
+import ipaddress
 import logging
 import os
 import secrets
@@ -19,11 +14,9 @@ from pydantic import BaseModel
 from lib.db import db
 
 logger = logging.getLogger(__name__)
-
 SESSION_COOKIE = "pf_session"
 SESSION_TTL_DAYS = 7
 ALGORITHM = "HS256"
-
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -54,7 +47,6 @@ def create_session_token(user_id: str) -> str:
 
 
 def session_cookie_kwargs() -> dict:
-    # Development may run over HTTP; production MUST use HTTPS.
     production = os.environ.get("APP_ENV", "development").strip().lower() == "production"
     return {
         "key": SESSION_COOKIE,
@@ -97,18 +89,51 @@ async def get_current_user(request: Request) -> UserContext:
 
 
 def require_roles(*roles: str):
-    """Dependency factory: 403 unless the session user's role is in `roles`."""
-
     async def dependency(user: UserContext = Depends(get_current_user)) -> UserContext:
         if roles and user.role not in roles:
             raise HTTPException(status_code=403, detail="Você não tem permissão para esta ação.")
         return user
-
     return dependency
 
 
+def _trusted_proxy_networks():
+    configured = os.environ.get("TRUSTED_PROXY_IPS", "")
+    networks = []
+    for value in configured.split(","):
+        value = value.strip()
+        if not value:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(value, strict=False))
+        except ValueError:
+            logger.error("Ignoring invalid TRUSTED_PROXY_IPS entry: %s", value)
+    return networks
+
+
+def _is_trusted_proxy(address: str, networks) -> bool:
+    try:
+        ip = ipaddress.ip_address(address)
+        return any(ip in network for network in networks)
+    except ValueError:
+        return False
+
+
 def client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else ""
+    """Trust X-Forwarded-For only when the immediate peer is an explicitly trusted proxy.
+
+    The proxy must overwrite or append X-Forwarded-For safely. Walking from right to left
+    skips trusted proxy hops and selects the first untrusted address.
+    """
+    peer = request.client.host if request.client else ""
+    networks = _trusted_proxy_networks()
+    if not peer or not _is_trusted_proxy(peer, networks):
+        return peer
+    forwarded = request.headers.get("x-forwarded-for", "")
+    chain = [part.strip() for part in forwarded.split(",") if part.strip()]
+    for address in reversed(chain):
+        if not _is_trusted_proxy(address, networks):
+            try:
+                return str(ipaddress.ip_address(address))
+            except ValueError:
+                break
+    return peer
