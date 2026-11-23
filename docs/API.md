@@ -17,6 +17,8 @@ Códigos usados: `200` ok · `201` criado · `400` regra de negócio/entrada inv
 
 A API não oferece endpoint genérico de status; health checks operacionais devem ser implementados na infraestrutura sem acessar coleções de negócio.
 
+A API não oferece endpoint genérico de status; health checks devem ser implementados na infraestrutura sem acessar coleções de negócio.
+
 ## Usuários
 
 | Método | Rota | Perfil |
