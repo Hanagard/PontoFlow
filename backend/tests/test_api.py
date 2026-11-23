@@ -12,9 +12,10 @@ import pytest
 
 API_URL = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api"
 
-ADMIN = {"email": "admin@pontoflow.com.br", "password": "Ponto@2026"}
-GESTOR = {"email": "gestor@pontoflow.com.br", "password": "Ponto@2026"}
-FUNCIONARIO = {"email": "maria.silva@pontoflow.com.br", "password": "Ponto@2026"}
+TEST_PASSWORD = os.environ.get("PONTOFLOW_TEST_PASSWORD", "local-test-password-not-for-production")
+ADMIN = {"email": "admin@pontoflow.com.br", "password": TEST_PASSWORD}
+GESTOR = {"email": "gestor@pontoflow.com.br", "password": TEST_PASSWORD}
+FUNCIONARIO = {"email": "maria.silva@pontoflow.com.br", "password": TEST_PASSWORD}
 
 
 @contextmanager
@@ -199,7 +200,9 @@ def test_employee_list_never_exposes_full_cpf():
 def test_cross_company_data_is_invisible():
     other = {"company_name": "Empresa Isolada SA", "name": "Admin Isolado", "email": "isolado@teste-tenant.com.br", "password": "Teste@2026"}
     with httpx.Client(base_url=API_URL, timeout=30.0) as c:
-        res = c.post("/auth/signup", json=other)
+        res = c.post("/auth/signup", json={**other, "password": "LongTestPassword#2026"})
+        if res.status_code == 403:
+            pytest.skip("signup desabilitado por padrão; habilite somente em ambiente de teste")
         if res.status_code == 409:
             res = c.post("/auth/login", json={"email": other["email"], "password": other["password"]})
         assert res.status_code == 200

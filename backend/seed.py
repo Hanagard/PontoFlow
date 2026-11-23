@@ -6,6 +6,7 @@ Safe to re-run — it clears only the demo company's documents, never other tena
 
 import asyncio
 import random
+import os
 import uuid
 from datetime import date, timedelta
 
@@ -66,7 +67,9 @@ USERS = [
     {"id": "user-gestor", "name": "João Pereira", "email": "gestor@pontoflow.com.br", "role": "gestor", "employee_id": "emp-joao"},
     {"id": "user-maria", "name": "Maria Silva", "email": "maria.silva@pontoflow.com.br", "role": "funcionario", "employee_id": "emp-maria"},
 ]
-PASSWORD = "Ponto@2026"
+PASSWORD = os.environ.get("DEMO_SEED_PASSWORD", "")
+if not PASSWORD or len(PASSWORD) < 12:
+    raise RuntimeError("Defina DEMO_SEED_PASSWORD com pelo menos 12 caracteres antes de executar o seed.")
 
 
 async def main() -> None:
@@ -253,7 +256,7 @@ async def main() -> None:
     )
 
     await ensure_indexes()
-    print(f"seed ok: {len(EMPLOYEES)} funcionários, {len(records)} registros, senha de todos: {PASSWORD}")
+    print(f"seed ok: {len(EMPLOYEES)} funcionários e {len(records)} registros. Credenciais configuradas por DEMO_SEED_PASSWORD.")
 
 
 if __name__ == "__main__":

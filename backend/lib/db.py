@@ -1,4 +1,4 @@
-"""Shared Mongo handle — import `client`/`db` from here (server.py, routers, seed.py)."""
+"""Shared Mongo handle — import client/db from here."""
 
 import logging
 import os
@@ -13,12 +13,9 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
-
 logger = logging.getLogger(__name__)
 
-# One entry per collection: every field a route filters, sorts, or dedupes on. Applied by ensure_indexes() at startup.
 INDEXES: dict[str, list[IndexModel]] = {
-    "status_checks": [IndexModel([("timestamp", DESCENDING)], name="timestamp_desc")],
     "companies": [IndexModel([("id", ASCENDING)], name="id", unique=True)],
     "users": [
         IndexModel([("id", ASCENDING)], name="id", unique=True),
@@ -38,15 +35,11 @@ INDEXES: dict[str, list[IndexModel]] = {
     ],
     "time_records": [
         IndexModel([("id", ASCENDING)], name="id", unique=True),
-        IndexModel(
-            [("company_id", ASCENDING), ("employee_id", ASCENDING), ("timestamp", DESCENDING)],
-            name="company_employee_ts",
-        ),
+        IndexModel([("company_id", ASCENDING), ("employee_id", ASCENDING), ("timestamp", DESCENDING)], name="company_employee_ts"),
         IndexModel([("company_id", ASCENDING), ("timestamp", DESCENDING)], name="company_ts"),
         IndexModel(
             [("company_id", ASCENDING), ("employee_id", ASCENDING), ("work_date", ASCENDING), ("type", ASCENDING)],
-            name="company_employee_workdate_type_unique",
-            unique=True,
+            name="company_employee_workdate_type_unique", unique=True,
             partialFilterExpression={"work_date": {"$exists": True}},
         ),
     ],
@@ -72,18 +65,18 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("id", ASCENDING)], name="id", unique=True),
         IndexModel(
             [("company_id", ASCENDING), ("employee_id", ASCENDING), ("competence", ASCENDING)],
-            name="company_employee_competence",
-            unique=True,
+            name="company_employee_competence", unique=True,
         ),
         IndexModel([("company_id", ASCENDING), ("competence", ASCENDING)], name="company_competence"),
     ],
+    "rate_limits": [IndexModel([("expires_at", ASCENDING)], name="rate_limit_ttl", expireAfterSeconds=0)],
 }
 
 
 async def ensure_indexes() -> None:
     for collection, models in INDEXES.items():
-        for model in models:  # one at a time so a bad spec skips only itself
+        for model in models:
             try:
                 await db[collection].create_indexes([model])
-            except Exception as exc:  # never block boot on an index; the log line names what to fix
+            except Exception as exc:
                 logger.error("ensure_indexes(%s.%s): %s", collection, model.document["name"], exc)

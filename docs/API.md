@@ -10,10 +10,14 @@ Códigos usados: `200` ok · `201` criado · `400` regra de negócio/entrada inv
 
 | Método | Rota | Perfil | Descrição |
 |---|---|---|---|
-| POST | `/auth/login` | público | `{email, password}` → dados do usuário + cookie de sessão. Rate limit 8/5min por e-mail+IP |
-| POST | `/auth/signup` | público | cria empresa + primeiro admin (`{company_name, name, email, password, timezone?}`) |
+| POST | `/auth/login` | público | `{email, password}` → dados do usuário + cookie de sessão. Rate limit persistente 8/5min por e-mail+IP |
+| POST | `/auth/signup` | público | desabilitado por padrão; habilitar com `ALLOW_PUBLIC_SIGNUP=true`, senha mínima 12 caracteres e limite 3/h por IP |
 | GET | `/auth/me` | autenticado | quem sou eu (id, name, role, company_id, company_name, timezone, employee_id) |
 | POST | `/auth/logout` | autenticado | limpa o cookie e audita |
+
+A API não oferece endpoint genérico de status; health checks operacionais devem ser implementados na infraestrutura sem acessar coleções de negócio.
+
+A API não oferece endpoint genérico de status; health checks devem ser implementados na infraestrutura sem acessar coleções de negócio.
 
 ## Usuários
 
