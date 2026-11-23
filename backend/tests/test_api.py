@@ -15,7 +15,7 @@ API_URL = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api"
 TEST_PASSWORD = os.environ.get("PONTOFLOW_TEST_PASSWORD", "local-test-password-not-for-production")
 ADMIN = {"email": "admin@pontoflow.com.br", "password": TEST_PASSWORD}
 GESTOR = {"email": "gestor@pontoflow.com.br", "password": TEST_PASSWORD}
-FUNCIONARIO = {"email": "maria.silva@pontoflow.com.br", "password": "Ponto@2026"}
+FUNCIONARIO = {"email": "maria.silva@pontoflow.com.br", "password": TEST_PASSWORD}
 
 
 @contextmanager
